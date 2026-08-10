@@ -1,5 +1,4 @@
-import React, { useState } from "react";
-import { fetchRisks } from "../api";   // ✅ correct path inside components
+import React, { useState } from "react";   // clean import
 
 function RiskForm({ onRiskAdded }) {
   const [category, setCategory] = useState("");
