@@ -1,0 +1,12 @@
+{
+  "name": "project-risk-management-dashboard",
+  "version": "1.0.0",
+  "scripts": {
+    "server": "node backend/server.js",
+    "client": "npm start --prefix client",
+    "dev": "concurrently \"npm run server\" \"npm run client\""
+  },
+  "devDependencies": {
+    "concurrently": "^8.0.1"
+  }
+}
