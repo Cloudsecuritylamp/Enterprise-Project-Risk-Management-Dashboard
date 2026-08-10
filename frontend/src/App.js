@@ -1,8 +1,8 @@
+import "./App.css";
 import React from "react";
 import { Routes, Route, Link } from "react-router-dom";
 import Navbar from "./Navbar";
-import Risks from "./Risks";
-import NewRisk from "./NewRisk";
+import Risks from "./components/Risks";
 import AuditLogs from "./components/AuditLogs";
 
 function App() {
@@ -37,7 +37,6 @@ function App() {
 
           {/* Other routes */}
           <Route path="/risks" element={<Risks />} />
-          <Route path="/new-risk" element={<NewRisk />} />
           <Route path="/auditlogs" element={<AuditLogs />} />
         </Routes>
       </div>

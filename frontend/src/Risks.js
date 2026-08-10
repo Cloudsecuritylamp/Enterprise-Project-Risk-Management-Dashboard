@@ -1,47 +1,78 @@
 import React, { useEffect, useState } from "react";
+import { fetchRisks } from "../api";
+import RiskForm from "./RiskForm";
 
 function Risks() {
   const [risks, setRisks] = useState([]);
+  const [riskToDelete, setRiskToDelete] = useState(null); // track selected risk
 
   useEffect(() => {
-    // Fetch risks from backend API
-    fetch("/api/risks")
-      .then((res) => res.json())
+    fetchRisks()
       .then((data) => setRisks(data))
-      .catch((err) => console.error("Error fetching risks:", err));
+      .catch((err) => console.error(err));
   }, []);
+
+  const handleRiskAdded = (newRisk) => {
+    setRisks((prev) => [...prev, newRisk]);
+  };
+
+  const confirmDelete = async () => {
+    if (!riskToDelete) return;
+    const token = localStorage.getItem("token");
+    try {
+      const res = await fetch(`https://enterprise-project-risk-management.onrender.com/api/risks/${riskToDelete.id}`, {
+        method: "DELETE",
+        headers: {
+          ...(token ? { Authorization: `Bearer ${token}` } : {})
+        }
+      });
+      if (!res.ok) throw new Error("Failed to delete risk");
+      setRisks((prev) => prev.filter((risk) => risk.id !== riskToDelete.id));
+      setRiskToDelete(null); // close modal
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   return (
     <div className="container">
-      <h1>Risks</h1>
+      <h2>Risks</h2>
+      <RiskForm onRiskAdded={handleRiskAdded} />
       <table className="risk-table">
         <thead>
           <tr>
-            <th>ID</th>
-            <th>Risk Name</th>
             <th>Category</th>
-            <th>Severity</th>
+            <th>Description</th>
+            <th>Score</th>
             <th>Status</th>
+            <th>Actions</th>
           </tr>
         </thead>
         <tbody>
-          {risks.length > 0 ? (
-            risks.map((risk) => (
-              <tr key={risk.id}>
-                <td>{risk.id}</td>
-                <td>{risk.name}</td>
-                <td>{risk.category}</td>
-                <td>{risk.severity}</td>
-                <td>{risk.status}</td>
-              </tr>
-            ))
-          ) : (
-            <tr>
-              <td colSpan="5">No risks found.</td>
+          {risks.map((risk) => (
+            <tr key={risk.id}>
+              <td>{risk.category}</td>
+              <td>{risk.description}</td>
+              <td>{risk.score}</td>
+              <td>{risk.status}</td>
+              <td>
+                <button onClick={() => setRiskToDelete(risk)}>Delete</button>
+              </td>
             </tr>
-          )}
+          ))}
         </tbody>
       </table>
+
+      {/* Confirmation Modal */}
+      {riskToDelete && (
+        <div className="modal">
+          <div className="modal-content">
+            <p>Are you sure you want to delete <strong>{riskToDelete.category}</strong>?</p>
+            <button onClick={confirmDelete}>Yes, Delete</button>
+            <button onClick={() => setRiskToDelete(null)}>Cancel</button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
